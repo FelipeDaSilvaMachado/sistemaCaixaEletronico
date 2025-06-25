@@ -35,17 +35,17 @@ namespace sistemaCaixaEletronico
             rtbExtrato.Clear();
 
             // Formata o saldo atual
-            rtbExtrato.SelectionAlignment = HorizontalAlignment.Center;
+            rtbExtrato.SelectionAlignment = HorizontalAlignment.Right;
             rtbExtrato.AppendText("Saldo Atual:\n");
             rtbExtrato.SelectionFont = new Font(rtbExtrato.Font, FontStyle.Bold);
-            rtbExtrato.AppendText($"R$ {sldAtual:F2}\n\n");
+            rtbExtrato.AppendText($"R$ {sldAtual:F2}\n");
 
             // Histórico de transações
             rtbExtrato.SelectionAlignment = HorizontalAlignment.Left;
             rtbExtrato.SelectionFont = new Font(rtbExtrato.Font, FontStyle.Regular);
             rtbExtrato.AppendText("Últimas Transações:\n");
 
-            int startIndex = Math.Max(0, historicoTransacoes.Count - 5);
+            int startIndex = Math.Max(0, historicoTransacoes.Count - 7);
             for (int i = startIndex; i < historicoTransacoes.Count; i++)
             {
                 rtbExtrato.AppendText(historicoTransacoes[i] + "\n");
@@ -60,7 +60,7 @@ namespace sistemaCaixaEletronico
             lblSaudacao.Text = $"Olá, {nomeUsuario}"; // precisa alterar para o programa entender quem esta
             //logado no sistema e puxar o usuario correto sem estar fixo.
             AtualizarDisplayCaixa();
-            historicoTransacoes.Add($"{DateTime.Now:HH:mm} - Saldo Inicial: R$ {sldAtual:F2}");
+            historicoTransacoes.Add($"{DateTime.Now:dd/MM/yyyy HH:mm} - Saldo Inicial: R$ {sldAtual:F2}");
         }
         private void grpBxExtrato_Enter(object sender, EventArgs e)
         {
@@ -129,8 +129,11 @@ namespace sistemaCaixaEletronico
             decimal convVlrSldSq;
             decimal convVlrSaldo;
             decimal convVlrSldDeposito;
-
-            if (!decimal.TryParse(txtVlrSaque, out convVlrSaque) || !decimal.TryParse(txtVlrSldSq, out convVlrSldSq) || !decimal.TryParse(txtVlrSaldo, out convVlrSaldo) || !decimal.TryParse(txtVlrSldDeposito, out convVlrSldDeposito))
+                                   
+            if (!decimal.TryParse(txtVlrSaque, out convVlrSaque) ||
+                !decimal.TryParse(txtVlrSldSq, out convVlrSldSq) ||
+                !decimal.TryParse(txtVlrSaldo, out convVlrSaldo) ||
+                !decimal.TryParse(txtVlrSldDeposito, out convVlrSldDeposito))
             {
                 MessageBox.Show("Por favor, insira valores numéricos válidos para o saque.", "Erro de Entrada", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtVlrSacado.Focus();
@@ -216,7 +219,7 @@ namespace sistemaCaixaEletronico
             lblSldSaque.Text = convVlrSldSq.ToString("F2");
             lblVlrSaldo.Text = convVlrSaldo.ToString("F2");
             lblSldDeposito.Text = convVlrSldDeposito.ToString("F2");
-
+            
             AtualizarDisplayCaixa();
 
             // --- Parte nova: Preparar e mostrar o comprovante ---
@@ -225,16 +228,15 @@ namespace sistemaCaixaEletronico
                 $"\nNovo saldo: R$ {convVlrSldSq:F2}";
 
             sldAtual -= convVlrSaque;
-            historicoTransacoes.Add($"{DateTime.Now:HH:mm} - Saque: R$ {convVlrSaque:F2}");
+            historicoTransacoes.Add($"{DateTime.Now:dd/MM/yyyy HH:mm} - Saque: R$ {convVlrSaque:F2}");
             AtualizarExtratoDisplay();
 
             // Detalhes completos para o comprovante em TXT
             string detalhesSaque =
-                "--- Comprovante de Saque ---\n" +
-                $"Data/Hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n" +
-                $"Valor Sacado: R$ {convVlrSaque:F2}\n" +
-                $"Saldo Anterior: R$ {convVlrSaldo:F2}\n" +
-                $"Novo Saldo: R$ {convVlrSldSq:F2}\n" +
+                "--- Comprovante de Saque ---\n\n" +
+                $"Data/Hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n\n" +
+                $"Valor Sacado: R$ {convVlrSaque:F2}\n\n" +
+                $"Novo Saldo: R$ {convVlrSldSq:F2}\n\n" +
                 "---------------------------";
 
             // Cria uma instância do seu novo formulário de comprovante
@@ -310,7 +312,7 @@ namespace sistemaCaixaEletronico
             lblSldSaque.Text = convVlrSldDep.ToString("F2");
             lblVlrSaldo.Text = convVlrSaldo.ToString("F2");
             lblSldDeposito.Text = convVlrSaldo.ToString("F2");
-
+            
             AtualizarDisplayCaixa();
 
             // --- Parte nova: Preparar e mostrar o comprovante ---
@@ -319,16 +321,15 @@ namespace sistemaCaixaEletronico
                 $"\nNovo saldo: R$ {convVlrSldDep:F2}";
 
             sldAtual += convVlrDeposito;
-            historicoTransacoes.Add($"{DateTime.Now:HH:mm} - Depósito: R$ {convVlrDeposito:F2}");
+            historicoTransacoes.Add($"{DateTime.Now:dd/MM/yyyy HH:mm} - Depósito: R$ {convVlrDeposito:F2}");
             AtualizarExtratoDisplay();
 
             // Detalhes completos para o comprovante em TXT
             string detalhesDeposito =
-                "--- Comprovante de Depósito ---\n" +
-                $"Data/Hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n" +
-                $"Valor Depositado: R$ {convVlrDeposito:F2}\n" +
-                $"Saldo Anterior: R$ {convVlrSaldo:F2}\n" +
-                $"Novo Saldo: R$ {convVlrSldDep:F2}\n" +
+                "--- Comprovante de Depósito ---\n\n" +
+                $"Data/Hora: {DateTime.Now:dd/MM/yyyy HH:mm}\n\n" +
+                $"Valor Depositado: R$ {convVlrDeposito:F2}\n\n" +
+                $"Novo Saldo: R$ {convVlrSldDep:F2}\n\n" +
                 "---------------------------";
 
             // Cria uma instância do seu novo formulário de comprovante
@@ -344,7 +345,7 @@ namespace sistemaCaixaEletronico
 
             // Cria o cabeçalho padrão para o arquivo
             string cabecalho = "=== EXTRATO BANCÁRIO ===\n" +
-                             $"Data: {DateTime.Now:dd/MM/yyyy}\n" +
+                             $"Data: {DateTime.Now:dd/MM/yyyy HH:mm}\n" +
                              $"Cliente: Felipe\n\n";
 
             // Monta o conteúdo completo do arquivo
